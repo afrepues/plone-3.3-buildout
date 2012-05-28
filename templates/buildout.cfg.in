@@ -7,7 +7,7 @@ import subprocess
 def genpwd(length):
     try:
         apg = subprocess.Popen(
-            ['apg', '-q', '-d', '-a0', '-M', 'SNcl', '-n1', '-m{0}'.format(length), '-x{0}'.format(length)],
+            ['apg', '-q', '-d', '-a0', '-M', 'SNcl', '-n1', '-m%s' % (length,), '-x%s' % (length,)],
             stdin  = subprocess.PIPE,
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE)
