@@ -1,0 +1,87 @@
+{% python
+
+import multiprocessing
+import random
+import string
+import subprocess
+
+def genpwd(length):
+    try:
+        apg = subprocess.Popen(
+            ['apg', '-q', '-d', '-a0', '-M', 'SNcl', '-n1', '-m{0}'.format(length), '-x{0}'.format(length)],
+            stdin  = subprocess.PIPE,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE)
+        (pwd, _) = apg.communicate()
+        if apg.returncode == 0:
+            return pwd
+    except OSError:
+        pass
+    charset = string.letters + string.digits + string.punctuation.replace('"', '')
+    return ''.join(random.SystemRandom().sample(charset, length))
+
+def get_pwd_length():
+    pwd_length = int(parts['options']['pwd_length'])
+    return max(pwd_length, 32)
+
+def number_of_instances():
+    try:
+        return int(parts['options']['instances'])
+    except (TypeError, ValueError):
+        return multiprocessing.cpu_count()
+
+def port(offset):
+    return int(parts['options']['base_port']) + offset
+
+%}\
+[buildout]
+extends = ${options.purpose}.cfg
+
+parts +=
+{% for ndx in xrange(1, number_of_instances()+1) %}\
+    z2-${ndx}
+{% end %}\
+
+
+[z2-instance]
+user = ${parts.options.admin_user}:${genpwd(get_pwd_length())}
+
+
+{% for ndx in xrange(1, number_of_instances()+1) %}\
+[z2-${ndx}]
+<= z2-instance
+http-address = $${ports:z2-${ndx}}
+
+
+{% end %}\
+[separate-data]
+zopes +=
+{% for ndx in xrange(1, number_of_instances()+1) %}\
+    z2-${ndx}
+{% end %}\
+# Uncomment and add the different site names you will have in separate
+# ZODBs.
+#parts =
+#    db1
+#    db2
+
+
+[supervisor]
+programs +=
+{% for ndx in xrange(1, number_of_instances()+1) %}\
+    15	 z2-${ndx}		$${buildout:directory}/bin/z2-${ndx}	[ console ]	true
+{% end %}\
+
+
+[ports]
+zeo-monitor = 127.0.0.1:${port(1)}
+
+z2-debug = 127.0.0.1:${port(10)}
+
+{% for ndx in xrange(1, number_of_instances()+1) %}\
+z2-${ndx} = $${hosts:z2-http}:${port(10+ndx)}
+{% end %}\
+
+
+[hosts]
+z2-http = 127.0.0.1

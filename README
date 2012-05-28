@@ -1,0 +1,86 @@
+What is this?
+=============
+
+Plone hosting with ZEO in one system account.
+
+Features
+--------
+
+* Configurable number of Zope instances
+* Initialization with parameters
+* Easy to create separate DBs
+* More...
+
+Initialization
+==============
+
+The buildout bootstrap needs to be done using the ``init.cfg``, mainly
+because there is not ``buildout.cfg``:
+
+.. code-block:: sh
+   $ python2.6 bootstrap.py -c init.cfg
+
+Then buildout is run using the same configuration file, but specifying
+the purpose of the buildout (development, testing or production),
+e.g.: for a development buildout:
+
+.. code-block:: sh
+   $ bin/buildout -c init.cfg install development
+
+development
+    Same Zope/Plone add-ons as in production, plus some to facilitate
+    troubleshooting, debugging, etc. Also, debugging is enabled by
+    default.
+
+testing
+    Same configuration as production, but with recording of picked
+    versions enabled.
+
+production
+    Only eggs needed for production, plus configuration for the final
+    deployment.
+
+In the initialization invocation of buildout options can be passed as
+variable assignments in the ``options`` part, e.g.:
+``options:foo=bar``.
+
+The recognized variables are:
+
+instances
+    The number of instances to create. If not specified, the number of
+    cores available in the system is taken.
+
+admin_user
+    Name of the user account created initially by Zope for
+    administration.
+
+pwd_length
+    Length of admin password if greater than 32 (which is set to be
+    the minimum length).
+
+base_port
+    Number from where all the port numbers will be offset.
+
+Example: to have the initial admin account to be named ``vork``:
+
+.. code-block:: sh
+
+   $ bin/buildout -c init.cfg options:admin_user=vork install development
+
+Building
+========
+
+After running the initialization phase, you will have a
+``buildout.cfg`` so you can run buildout:
+
+.. code-block:: sh
+   $ bin/buildout
+
+This will get the hosting ready, and it can be started with:
+
+.. code-block:: sh
+   $ bin/supervisord
+
+More commands are available in the ``bin/`` directory.
+
+.. todo:: Document parts and things in ``bin/``.
