@@ -1,0 +1,11 @@
+.init.cfg
+.installed.cfg
+buildout.cfg
+bin
+develop-eggs
+downloads
+eggs
+fake-eggs
+parts
+var
+
