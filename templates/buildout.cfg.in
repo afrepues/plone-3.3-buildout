@@ -1,6 +1,5 @@
 {% python
 
-import multiprocessing
 import random
 import string
 import subprocess
@@ -28,7 +27,13 @@ def number_of_instances():
     try:
         return int(parts['options']['instances'])
     except (TypeError, ValueError):
-        return multiprocessing.cpu_count()
+        try:
+            import multiprocessing
+            return multiprocessing.cpu_count()
+        except ImportError:
+            print "The multiprocessing module is not available, creating one instance only."
+            print "Re-run specifying the number of instances in the options if you need more."
+            return 1
 
 def port(offset):
     return int(parts['options']['base_port']) + offset
