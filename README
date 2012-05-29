@@ -70,6 +70,18 @@ Example: to have the initial admin account to be named ``vork``:
 Building
 ========
 
+Plone 3 excerpt
+---------------
+
+For Plone 3, besides using python2.4, the first buildout command to
+issue right after the initialization is:
+
+.. code-block: sh
+   $ bin/buildout -N install zope2
+
+To force buildout to create the fake-eggs. Chaos and confussion ensues
+otherwise.
+
 After running the initialization phase, you will have a
 ``buildout.cfg`` so you can run buildout:
 
